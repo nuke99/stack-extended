@@ -1,0 +1,19 @@
+.flat-green-background{
+	background-color: #16a085 !important;
+}
+
+.flat-green-light-background {
+	background-color: #1abc9c !important;
+}
+
+.flat-green-light-background:hover {
+	border-color: #0A9A7D;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: green;
+}

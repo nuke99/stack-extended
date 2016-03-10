@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+/Applications/MAMP/Library/bin/mysqld --basedir=/Applications/MAMP/Library --datadir=/Applications/MAMP/db/mysql --plugin-dir=/Applications/MAMP/Library/lib/plugin --log-error=/Applications/MAMP/logs/mysql_error_log.err --pid-file=/Applications/MAMP/tmp/mysql/mysql.pid --socket=/Applications/MAMP/tmp/mysql/mysql.sock --port=3306 >& /dev/null &

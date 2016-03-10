@@ -1,0 +1,50 @@
+<?php
+#!/usr/bin/php
+
+$content = @file_get_contents($_SERVER['HOME'].'/.stackex');
+$port = 8088;
+if(!empty($content)){
+    $data = json_decode($content);
+//    system('open http://google.com');
+    exec("ps auxwww|grep stackex.tool|grep -v grep", $output);
+    if(count($output) == 0){
+        $status = start_server($data->path,$port);
+    }else{
+        system("open http://stackex.tool:$port");
+    }
+}
+
+function start_server($path,$port){
+    exec("php -S stackex.tool:$port -t $path > /dev/null 2>&1 & ");
+    sleep(0.5);
+    $count = 0;
+    $restart_count = 0;
+    while(_port_check('127.0.0.1',$port) == false){
+        if($count == 5){
+            $port++;
+            echo "restarting process";
+            $restart_count++;
+            $count = 0;
+        }
+        $count++;
+        sleep(1);
+    }
+    if($restart_count > 5){
+        // error output
+        exit();
+    }else{
+        system("open http://stackex.tool:$port");
+    }
+}
+
+
+function _port_check($ip,$port){
+    $fp = @fsockopen($ip, $port, $error , $errstr, 5);
+    if($fp == true){
+        fclose($fp);
+        return true;
+    }else{
+        return false;
+    }
+
+}

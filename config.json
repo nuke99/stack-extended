@@ -1,0 +1,8 @@
+{
+    "mamp": {
+        "name": "mamp",
+        "path": "\/Applications\/MAMP\/",
+        "mysql_port":3306,
+        "apache_port":80
+    }
+}

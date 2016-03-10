@@ -1,0 +1,74 @@
+html,body {
+	height: 100%;
+	font-family: 'Open Sans', sans-serif;
+}
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+}
+.float_right {
+    float: right;
+}
+.float_left {
+    float: left;
+}
+
+.navbar-head{
+	width: 100%;
+	border-radius: 0 !important;
+    /*margin-bottom: 0px;*/
+}
+.navbar-head a {
+	color: white;
+}
+
+.nav>li>a:focus, .nav>li>a:hover {
+    background-color: #13A78A !important;
+}
+
+.panel-heading h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: normal;
+    width: 75%;
+    padding-top: 8px;
+}
+.host-panel-body {
+	padding: 0px !important;
+}
+
+.host-list-item{
+	border-left-width: 0;
+	border-right-width: 0;
+    min-height: 60px;
+}
+
+.host-list-item:focus {
+    background-color: rgba(0,0,0,.075) !important;
+}
+
+.host-list-item:hover{
+    background-color: rgba(0,0,0,.075) !important;
+}
+.container {
+    height:100%;
+}
+
+.fill{
+    height:100%;
+    min-height:100%;
+}
+
+#top-version{
+	color:#035000;
+	font-size: 11px;
+}
+
+#vhost-list {
+    padding-left: 0;
+    padding-top:0;
+    margin-left: 0;
+    margin-top:0;
+    border-left-width: 0;
+    padding-right: 0;
+}

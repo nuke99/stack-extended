@@ -1,0 +1,1 @@
+/Applications/MAMP/bin/stopApache.sh && sleep 2 && /Applications/MAMP/bin/startApache.sh >& /dev/null
