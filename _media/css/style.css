@@ -72,3 +72,7 @@ html,body {
     border-left-width: 0;
     padding-right: 0;
 }
+
+.terminal-container {
+    max-height: 200px;
+}

@@ -10,6 +10,27 @@
 	border-color: #0A9A7D;
 }
 
+.flat-blue-background{
+    background-color:#3498db !important;
+}
+
+.flat-blue-background:hover{
+    background-color: #2980b9 !important;
+}
+.btn-white {
+    color: white;
+}
+.btn-white:hover{
+    color: whitesmoke;
+}
+.btn-white:focus{
+    color: whitesmoke;
+}
+
+.white {
+    color: white !important;
+}
+
 .red {
     color: red;
 }

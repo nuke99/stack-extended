@@ -5,7 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title><?=$config['name']?></title>
+      <link rel="shortcut icon" href="/favicon.ico" />
+
+
+
+      <title><?=$config['name']?></title>
 
       <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'  type='text/css'>
 
@@ -42,7 +46,7 @@
     <div  class="row container-fluid">
     	<div ng-controller="serviceController" class="col-lg-12">
 
-    		<div class="col-lg-4 col-sm-5 float_right" style="padding-right: 0;">
+    		<div class="col-lg-4 col-sm-5 float_right">
                 <div class="col-lg-12 col-sm-12" style="margin-bottom: 5px">
                     <div class="col-lg-4 col-sm-6 col-lg-offset-4"  style="text-align: right" uib-tooltip="Apache is {{apache_status =='off' ? 'not' : ''}} running">
                         <span>Apache <i class="fa fa-circle-o-notch" ng-class="{'red':apache_status == 'off' , 'green':apache_status == 'on'}"></i></span>
@@ -86,7 +90,7 @@
                 <div id="vhost-list" class="panel panel-default fill ">
                     <div class="panel-heading ">
                         <h3 class="panel-title pull-left">Host List </h3>
-                        <button class="btn btn-success pull-right flat-green-background"><i class="fa fa-plus"></i></button>
+                        <button class="btn btn-success pull-right flat-green-background" ng-click="add()"><i class="fa fa-plus"></i></button>
                         <div class="clearfix"></div>
                     </div>
                     <div class="panel-body host-panel-body" style="height:100%">
@@ -106,52 +110,57 @@
                 </div>
             </div>
 
-            <div class="col-sm-8 fill" style="margin-top: 10px">
-                <div  class="panel panel-default fill ">
-                    <div class="panel-heading ">
-                        <h3 class="panel-title "> <span class="ng-cloak">{{host.ServerName}}</span> </h3>
+            <div class="col-sm-8 fill" style="margin-top: 10px" >
+                <div  class="panel panel-default fill " id="vhost_selected">
+                    <div class="panel-heading " ng-class="{'flat-green-background white':is_new_host == true}">
+                        <h3 class="panel-title pull-left">
+                            <span ng-show="is_new_host" class="ng-cloak"><b>Add new Virtual Host</b></span>
+                            <span ng-hide="is_new_host" class="ng-cloak">{{host.ServerName}}</span>
+                        </h3>
+                        <button class="btn btn-default pull-right  " ng-click="addVirtualHost() "><i class="fa fa-floppy-o"></i> Save</button>
+                        <div class="clearfix"></div>
 
                     </div>
-                    <div class="panel-body">
+                    <div class="panel-body" >
                         <h4>General</h4>
                         <form class="form-horizontal">
                             <!-- Server Name -->
-                            <div class="form-group">
+                            <div class="form-group" ng-class="{'has-error':host.error.ServerName}">
                                 <label for="name" class="col-sm-2 control-label">Server Name</label>
                                 <div class="col-sm-5">
-                                    <input type="text" class="form-control" placeholder="demoweb.local"  ng-model="host.ServerName">
+                                    <input type="text" class="form-control" placeholder="demoweb.local"  ng-model="host.ServerName" ng-change="serverNameChange('{{host.ServerName}}')">
+                                    <span class="help-block ng-cloak">{{host.error.ServerName}}</span>
                                 </div>
                                 <div class="checkbox col-sm-5">
                                     <label>
-                                        <input type="checkbox" class=" col-sm-2" checked>Add to etc/hosts
+                                        <input ng-model="host.addToHost" type="checkbox" class=" col-sm-2" tabindex="-1" checked>Add to etc/hosts
                                     </label>
                                 </div>
 
                             </div>
 
-
-                            <!-- Server Alias -->
-                            <div class="form-group">
-                                <label  class="col-sm-2 control-label">Server Alias</label>
-                                <div class="col-sm-5">
-                                    <input type="text" class="form-control" placeholder="www.demoweb.local"  ng-model="host.ServerAlias">
-                                </div>
-                            </div>
-
                             <!-- Path -->
-                            <div class="form-group">
+                            <div class="form-group" ng-class="{'has-error':host.error.DocumentRoot}">
                                 <label  class="col-sm-2 control-label">Document Root</label>
                                 <div class="col-sm-5">
-                                    <div class="input-group">
-                                          <span class="input-group-btn">
-                                            <button class="btn btn-default" type="button"><i class="fa fa-folder"></i> Select</button>
-                                          </span>
-                                        <input type="text" class="form-control" placeholder="/var/www/project" ng-model="host.DocumentRoot">
-                                    </div>
-
+                                    <input type="text" class="form-control" placeholder="/var/www/project" ng-model="host.DocumentRoot">
+                                    <span class="help-block ng-cloak">{{host.error.DocumentRoot}}</span>
                                 </div>
+                                <!--                                <div class="col-sm-1">-->
+                                <!--                                    <img src="_media/images/preloader.gif" width="20" height="20" />-->
+                                <!--                                </div>-->
                             </div>
 
+                            <hr class="divider">
+
+                            <!-- Server Alias -->
+                            <div class="form-group" ng-class="{'has-error':host.error.ServerAlias}">
+                                <label  class="col-sm-2 control-label">Server Alias</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" placeholder="www.demoweb.local"  ng-model="host.ServerAlias" ng-change="AliasChange()">
+                                    <span class="help-block ng-cloak">{{host.error.ServerAlias}}</span>
+                                </div>
+                            </div>
                             <!-- IP & PORT-->
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">IP & Port</label>
@@ -167,10 +176,11 @@
                             </div>
 
                             <!-- Server E-mail -->
-                            <div class="form-group">
+                            <div class="form-group" ng-class="{'has-error':host.error.ServerAdmin}">
                                 <label class="col-sm-2 control-label">Server Admin</label>
                                 <div class="col-sm-5">
                                     <input type="email" class="form-control" placeholder="admin@demoweb.local" ng-model="host.ServerAdmin">
+                                    <span class="help-block ng-cloak">{{host.error.ServerAdmin}}</span>
                                 </div>
                             </div>
 
@@ -198,27 +208,27 @@
                                 <div class="checkbox col-sm-10">
                                     <div class="col-sm-12">
                                         <label class="checkbox col-sm-3">
-                                            <input type="checkbox" class=" col-sm-1" >Indexes
+                                            <input type="checkbox" class=" col-sm-1" ng-model="host.Directory.Options.Indexes">Indexes
                                         </label>
 
                                         <label class="checkbox col-sm-3">
-                                            <input type="checkbox" class=" col-sm-1" checked>Includes
+                                            <input type="checkbox" class=" col-sm-1" ng-model="host.Directory.Options.Includes">Includes
                                         </label>
                                     </div>
 
                                     <div class="col-sm-12">
                                         <label class="checkbox col-sm-3">
-                                            <input type="checkbox" class=" col-sm-1" checked>FollowSymLinks
+                                            <input type="checkbox" class=" col-sm-1" ng-model="host.Directory.Options.FollowSymLinks" checked>FollowSymLinks
                                         </label>
 
                                         <label class="checkbox col-sm-3">
-                                            <input type="checkbox" class=" col-sm-1" >SymLinksifOwnserMatch
+                                            <input type="checkbox" class=" col-sm-1" ng-model="host.Directory.Options.SymLinksifOwnserMatch" >SymLinksifOwnserMatch
                                         </label>
                                     </div>
 
                                     <div class="col-sm-12">
                                         <label class="checkbox col-sm-3">
-                                            <input type="checkbox" class=" col-sm-1" checked>Exec CGI
+                                            <input type="checkbox" class=" col-sm-1" ng-model="host.Directory.Options.execCGI">Exec CGI
                                         </label>
                                     </div>
 
@@ -226,40 +236,39 @@
                             </div>
 
 
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label"> AllowOverride </label>
-                                <div class="col-sm-3">
-                                    <input type="text" class="form-control" value="All">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label"> Order </label>
-                                <div class="col-sm-3">
-                                    <input type="text" class="form-control" value="allow,deny">
-                                </div>
-                            </div>
-
-
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label"> Allow from </label>
-                                <div class="col-sm-3">
-                                    <input type="text" class="form-control" value="all">
-                                </div>
-                            </div>
+<!--                            <div class="form-group">-->
+<!--                                <label class="col-sm-2 control-label"> AllowOverride </label>-->
+<!--                                <div class="col-sm-3">-->
+<!--                                    <input type="text" class="form-control" ng-model="host.Directory.AllowOverride">-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!---->
+<!--                            <div class="form-group">-->
+<!--                                <label class="col-sm-2 control-label"> Order </label>-->
+<!--                                <div class="col-sm-3">-->
+<!--                                    <input type="text" class="form-control" ng-model="host.Directory.Order">-->
+<!--                            </div>-->
+<!--                            </div>-->
+<!---->
+<!---->
+<!--                            <div class="form-group">-->
+<!--                                <label class="col-sm-2 control-label"> Allow from </label>-->
+<!--                                <div class="col-sm-3">-->
+<!--                                    <input type="text" class="form-control" ng-model="host.Directory.AllowFrom">-->
+<!--                                </div>-->
+<!--                            </div>-->
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">Additional Parameters</label>
                                 <div class="col-sm-7">
-                                    <textarea class="form-control" rows="5" id="comment"></textarea>
+                                    <textarea ng-model="host.Directory.extras" class="form-control" rows="5" id="comment">
+
+
+
+                                    </textarea>
                                 </div>
                             </div>
-
-
                         </form>
-
-
-
                     </div>
                 </div>
             </div>
@@ -273,6 +282,15 @@
     <script src="_media/js/bootstrap.min.js"></script>
     <script src="_media/js/angular.min.js"></script>
     <script src="_media/js/ui-bootstrap-tpls-1.2.4.min.js"></script>
+
+    <script src="_media/js/ngprogress.min.js"></script>
+    <link href="_media/css/ngProgress.css" rel="stylesheet">
+
+    <script src="_media/bower_components/jquery.terminal/js/jquery.terminal-min.js"></script>
+    <script src="_media/bower_components/jquery.terminal/js/dterm.js"></script>
+    <script src="_media/bower_components/jquery.terminal/js/jquery.mousewheel-min.js"></script>
+    <script src="_media/bower_components/angular-terminal/angular-terminal.js"></script>
+    <link href="_media/bower_components/jquery.terminal/css/jquery.terminal.css" rel="stylesheet">
 
     <!--    Angular App -->
     <script src="_media/js/app/app.js"></script>

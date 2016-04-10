@@ -107,6 +107,61 @@ class Service {
         }
     }
 
+    public function create_virtual_host(){
+
+        $data = json_decode(file_get_contents("php://input"));
+        $error = array();
+        if($data){
+            // Name
+            if(!isset($data->ServerName) || empty($data->ServerName)){
+                $error['ServerName'] = "Name Cannot be empty";
+            }
+            // Alias
+            if(!isset($data->ServerAlias) || empty($data->ServerAlias)){
+                $error['ServerAlias'] = "Alias cannot be empty";
+            }
+            // Path
+            if(!isset($data->DocumentRoot) || empty($data->DocumentRoot)){
+                $error['DocumentRoot'] = "Document Root cannot be empty";
+            }
+            // IP
+            if(!isset($data->ip) || empty($data->ip)){
+                $error['ip'] = "IP cannot be empty";
+            }
+            // Port
+            if(!isset($data->port) || empty($data->port)){
+                $error['port'] = "Port cannot be empty";
+            }
+
+            // Server E-mail
+            if(!isset($data->ServerAdmin) || empty($data->ServerAdmin)){
+                $error['ServerAdmin'] = "E-mail cannot be empty";
+            }else{
+                if(filter_var($data->ServerAdmin, FILTER_VALIDATE_EMAIL) === false){
+                    $error['ServerAdmin'] = "E-mail is invalid";
+                }
+            }
+
+             // Error Logs
+             if(!isset($data->ErrorLog) || empty($data->ErrorLog)){
+                 $error['ErrorLog'] = "Error log cannot be empty";
+             }
+
+            //Custom Logs
+            if(!isset($data->CustomLog) || empty($data->CustomLog)){
+                $error['CustomLog'] = "Custom Error log cannot be empty";
+            }
+
+        }
+
+        if(!empty($error)){
+            output(false,$error);
+        }
+
+        $host = $this->_inst->create_virtual_host($data);
+
+    }
+
 
     // ------- Private functions
 	private function _port_check($ip,$port){

@@ -16,9 +16,15 @@ class Mamp{
     }
 
 
-    public function apache_restart(){
+    public function apache_restart($append = false){
         // Stop Apache && Start Apache
-        file_put_contents("bin/mamp/action",$this->_service->path."bin/stopApache.sh && sleep 2 && ".$this->_service->path."bin/startApache.sh >& /dev/null"); // write action file
+        if($append == true){
+            $ap = FILE_APPEND;
+        }else{
+            $ap = null;
+        }
+
+        file_put_contents("bin/mamp/action",$this->_service->path."bin/stopApache.sh && sleep 2 && ".$this->_service->path."bin/startApache.sh >& /dev/null",$ap); // write action file
         $command = "open bin/mamp/Apache.app"; // read from action file and execute
         $cmd = shell_exec($command);
         return true;
@@ -97,7 +103,27 @@ class Mamp{
                             if(strtolower($keyValues[0]) == "<directory" || strtolower($keyValues[0]) == "</directory>") {
                                 preg_match_all('~<Directory ([^>]+)>(.*?)</Directory>~is',$value,$dic_match);
 
-                                $hostValues['Directory'] = explode("\n",$dic_match[2][0]);
+//                                $hostValues['Directory'] = explode("\n",$dic_match[2][0]);
+                                  $a = trim($dic_match[2][0]);
+                                    if(!empty($a)){
+                                        $b = explode("\n",$a);
+
+                                        foreach($b as $k => $v){
+                                             $value = trim($v);
+                                             $dicKeyVals = explode(" ",$value);
+
+                                             //Options
+                                             if(strtolower($dicKeyVals[0]) == 'options'){
+                                                  array_shift($dicKeyVals);
+                                                  foreach($dicKeyVals as $kk => $vv){
+                                                      $hostValues['Directory']['Options'][$vv] = true;
+                                                  }
+                                             }else{
+//                                                 $key = array_shift($dicKeyVals);
+                                                 $hostValues['Directory']['extras'] .= implode(" ",$dicKeyVals)."\n";
+                                             }
+                                        }
+                                    }
                             }else{
                                 $kk = $keyValues[0];
                                 unset($keyValues[0]);
@@ -112,10 +138,46 @@ class Mamp{
             }
 
         }
-
-
         return $list;
 
+    }
+
+    public function create_virtual_host($data){
+
+       // include template file
+        include_once('templates/vhost.conf.php');
+
+        // check for file permission
+        $vhost_dir = $this->_service->path.'conf/apache/extra/stackex/';
+        $is_dir = is_dir($vhost_dir);
+
+        // create folder is doesn't exist
+        if($is_dir == false){
+            mkdir($vhost_dir, 0777, true);
+        }
+
+        //create virtual host file
+        $file_name = 'httpd-vhost-'.str_replace('.','_',$data->ServerName).".conf";
+        $file = fopen($vhost_dir.$file_name,'w');
+
+        fwrite($file,trim($vhost_template));
+        fclose($file);
+
+        // append to http.conf file
+        $confFile = $this->_service->path."/conf/apache/httpd.conf";
+        $appendText = "\nInclude ".$this->_service->path."conf/apache/extra/stackex/".$file_name;
+        //check if include line is already in the config file
+        if(strpos(file_get_contents($confFile),$appendText) == false){
+            file_put_contents($confFile,$appendText,FILE_APPEND);
+        }
+        //Add to host file
+        if($data->addToHost == true){
+            file_put_contents("bin/mamp/action",'echo "127.0.0.1    '.$data->ServerName.'" >> /etc/hosts'."\n"); // write action file
+        }
+
+        //$data->addToHost (true) is added because etc/hosts add action need to be appended to the action file without overwriting the apache restart
+        $this->apache_restart($data->addToHost);
+        return true;
     }
 
 }

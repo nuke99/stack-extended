@@ -1,1 +1,2 @@
+echo "127.0.0.1    demoproject.dev" >> /etc/hosts
 /Applications/MAMP/bin/stopApache.sh && sleep 2 && /Applications/MAMP/bin/startApache.sh >& /dev/null

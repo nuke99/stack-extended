@@ -3,15 +3,51 @@
 
 $content = @file_get_contents($_SERVER['HOME'].'/.stackex');
 $port = 8088;
-if(!empty($content)){
+if(!empty($content)) {
     $data = json_decode($content);
 //    system('open http://google.com');
-    exec("ps auxwww|grep stackex.tool|grep -v grep", $output);
-    if(count($output) == 0){
-        $status = start_server($data->path,$port);
-    }else{
+
+
+    $ctx = stream_context_create(array(
+            'http' => array(
+                'timeout' => 1
+            )
+        )
+    );
+    $res = @file_get_contents("http://stackex.tool:$port/", 0, $ctx);
+    // If Server is online and running
+    if($res == true){
+        echo "[+] Server is already running ";
         system("open http://stackex.tool:$port");
+
+    // If site is offline
+    }else{
+        exec("ps auxwww|grep stackex.tool|grep -v grep", $output);
+        if (count($output) >= 0) {
+            echo "[!] Server has some issues ";
+            foreach ($output as $k => $v) {
+                $process = explode(" ", trim($v));
+                exec('kill -9 ' . $process[9]);
+            }
+            echo "[!] Killed previous server ";
+            exec("lsof -i :$port | grep LISTEN | grep -v grep", $portcheck);
+            if (count($portcheck) > 0) {
+                foreach ($portcheck as $k => $v) {
+                    $a = explode(' ', $v);
+                    exec('kill -9 ' . $a[4]);
+                }
+                echo "[!] Killed previous port connections";
+            }
+            echo "[+] Started a new Server";
+            $status = start_server($data->path, $port);
+        }else{
+            $port++;
+            system("open http://stackex.tool:$port");
+        }
     }
+
+
+
 }
 
 function start_server($path,$port){
@@ -36,7 +72,6 @@ function start_server($path,$port){
         system("open http://stackex.tool:$port");
     }
 }
-
 
 function _port_check($ip,$port){
     $fp = @fsockopen($ip, $port, $error , $errstr, 5);
